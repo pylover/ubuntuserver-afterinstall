@@ -15,19 +15,19 @@
 
 ## Usage
 
-1. **One-line installation via curl**  
-   ```bash
-   curl -sL "https://raw.githubusercontent.com/agrinco/ubuntuserver-afterinstall/main/do.sh" | sudo bash
-   ```
-   This will run the script directly, prompting you for any missing variables.
+1. One-line installation via curl  
+```bash
+curl -sL "https://raw.githubusercontent.com/agrinco/ubuntuserver-afterinstall/main/do.sh" | sudo bash
+```
+This will run the script directly, prompting you for any missing variables.
 
-2. **Using Git**  
-   ```bash
-   git clone https://github.com/agrinco/ubuntuserver-afterinstall.git
-   cd ubuntuserver-afterinstall/
-   # Update vars.sh with your desired configurations
-   sudo ./do.sh
-   ```
+2. Using Git
+```bash
+git clone https://github.com/agrinco/ubuntuserver-afterinstall.git
+cd ubuntuserver-afterinstall/
+# Update vars.sh with your desired configurations
+sudo ./do.sh
+```
 
 ## Example Configuration
 
@@ -55,9 +55,9 @@ PASSWD_ADMIN="CommonAdminPass"
 
 ### Interactive Prompts
 If you run the script without pre-configuring vars.sh, you will be asked:
-- **SSH Port**: If SSH_PORT is not set, you’ll be prompted to enter it.
-- **Root Password**: If PASSWD_ROOT is not set, the script will ask for it securely.
-- **Admin Users**: If ADMIN_USERS is not set, the script will prompt until you provide at least one user.
+- SSH Port: If SSH_PORT is not set, you’ll be prompted to enter it.
+- Root Password: If PASSWD_ROOT is not set, the script will ask for it securely.
+- Admin Users: If ADMIN_USERS is not set, the script will prompt until you provide at least one user.
 - If PASSWD_ADMIN is not set, it will prompt you individually for each admin user’s password.
 ```plaintext
 Enter SSH port [default: 1111]: 2222

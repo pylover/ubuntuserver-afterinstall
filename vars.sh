@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 
 
-# Optional: Predefine any or all of these variables.
-# If they are not set here, the script will prompt for them.
-
-
+# Override SSH port if desired:
 SSH_PORT=2222
-PASSWD_ROOT="rootpassword"
-ADMIN_USERS="adminuser1 adminuser2"
-PASSWD_ADMIN="adminpassword"
 
+# Override the root password if desired:
+PASSWORD_ROOT="mysecurepassword"
 
-# No global authorized keys file is mandatory,
-# but if provided, name it: ssh_authorized_keys
+# Define admin users as username:password pairs (space-separated for multiple).
+# If password is omitted after ':', it defaults to "adminpassword".
+# For example:
+ADMIN_USERS="admin1: admin2:secretadminpass"
+
+# If you do not set ADMIN_USERS, the script prompts and defaults to "adminuser:adminpassword".
+
+# Define which users should have NOPASSWD sudo access:
+# List the usernames that should have NOPASSWD separated by spaces.
+# If none are listed, no user gets NOPASSWD:
+NOPASS_ADMIN="admin1 admin2"
+

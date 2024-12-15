@@ -12,5 +12,9 @@ if ! grep -q "EDITOR=" /etc/profile.d/editor.sh 2>/dev/null; then
 fi
 
 
-echo "Server initialization completed successfully."
+if ! grep -q "set editing-mode vi" "${HOME}/.inputrc" 2>/dev/null; then
+  echo "set editing-mode vi" >> "${HOME}/.inputrc"
+fi
 
+
+echo "Server initialization completed successfully."

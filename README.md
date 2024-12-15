@@ -35,35 +35,22 @@ sudo ./do.sh
 ```bash
 #!/usr/bin/env bash
 
-# Set a custom SSH port
+
+# Override SSH port if desired:
 SSH_PORT=2222
 
-# Set a root password (otherwise the script will prompt)
-PASSWD_ROOT="SuperSecureRootPassword"
+# Override the root password if desired:
+PASSWORD_ROOT="mysecurepassword"
 
-# Provide a space-separated list of admin users
-ADMIN_USERS="adminuser1 adminuser2"
+# Define admin users as username:password pairs (space-separated for multiple).
+# If password is omitted after ':', it defaults to "adminpassword".
+# For example:
+ADMIN_USERS="admin1: admin2:secretadminpass"
 
-# Optionally, set a single password for all admin users
-PASSWD_ADMIN="CommonAdminPass"
+# If you do not set ADMIN_USERS, the script prompts and defaults to "adminuser:adminpassword".
 
-# If you have global or user-specific authorized keys files, place them in the same directory:
-# ssh_authorized_keys          -> global authorized keys for all users
-# ssh_authorized_keys_root     -> authorized keys for root
-# ssh_authorized_keys_adminuser1  -> authorized keys for adminuser1
-```
-
-### Interactive Prompts
-If you run the script without pre-configuring vars.sh, you will be asked:
-- SSH Port: If SSH_PORT is not set, you’ll be prompted to enter it.
-- Root Password: If PASSWD_ROOT is not set, the script will ask for it securely.
-- Admin Users: If ADMIN_USERS is not set, the script will prompt until you provide at least one user.
-- If PASSWD_ADMIN is not set, it will prompt you individually for each admin user’s password.
-```plaintext
-Enter SSH port [default: 1111]: 2222
-Enter root password: ******
-Enter admin usernames (space-separated): adminuser1 adminuser2
-No PASSWD_ADMIN set. You will be prompted for each admin user's password.
-Enter password for adminuser1: ******
-Enter password for adminuser2: ******
+# Define which users should have NOPASSWD sudo access:
+# List the usernames that should have NOPASSWD separated by spaces.
+# If none are listed, no user gets NOPASSWD:
+NOPASS_ADMIN="admin1 admin2"
 ```

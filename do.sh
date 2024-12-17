@@ -29,6 +29,7 @@ fi
 
 # Back up current iptables configuration
 echo "Backing up current iptables rules..."
+mkdir -p /etc/iptables/
 iptables-save > /etc/iptables/rules.v4.backup
 
 

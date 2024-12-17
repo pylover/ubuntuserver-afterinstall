@@ -77,7 +77,7 @@ fi
 if [[ "$user_response" == "y" ]]; then
   echo "User confirmed access. Canceling rollback..."
   # Stop the rollback screen session
-  screen -S ${SCREEN_NAME} -X quit 2>/dev/null || true
+  screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
   # Remove rollback file
   rm -f "${ROLLBACK_FILE}"
   # Persist new rules
@@ -87,13 +87,13 @@ else
   echo "No confirmation received. Rolling back firewall changes..."
   bash "${ROLLBACK_FILE}"
   # Clean up rollback screen session if still running
-  screen -S ${SCREEN_NAME} -X quit 2>/dev/null || true
+  screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
   exit 1
 fi
 
 
 # Clean up if still needed (no harm if already cleaned)
-screen -S ${SCREEN_NAME} -X quit 2>/dev/null || true
+screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
 
 
 echo "Server initialization completed successfully."

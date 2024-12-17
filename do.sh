@@ -7,6 +7,7 @@ set -e
 ROLLBACK_TIMER=30
 SCREEN_NAME="iptables_restore"
 SSH_PORT=22
+SERVER_IP=$(hostname -I | awk '{print $1}')
 
 
 echo "Starting system preparation..."
@@ -57,9 +58,9 @@ iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -s 127.0.0.0/8 -j ACCEPT
-iptables -A INPUT -d x.x.x.x/32 -p tcp -m tcp --sport 1025:65535 --dport ${SSH_PORT} -j ACCEPT  # SSH access
-iptables -A INPUT -d x.x.x.x/32 -p tcp -m tcp --sport 1025:65535 --dport 80 -j ACCEPT           # HTTP
-iptables -A INPUT -d x.x.x.x/32 -p tcp -m tcp --sport 1025:65535 --dport 443 -j ACCEPT          # HTTPS
+iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1025:65535 --dport ${SSH_PORT} -j ACCEPT  # SSH access
+iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1025:65535 --dport 80 -j ACCEPT           # HTTP
+iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1025:65535 --dport 443 -j ACCEPT          # HTTPS
 
 
 # Save iptables rules (temporarily, final save will be after confirmation)

@@ -60,6 +60,7 @@ iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport ${SS
 iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport 80 -j ACCEPT           # HTTP
 iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport 443 -j ACCEPT          # HTTPS
 iptables -P FORWARD DROP
+iptables -P INPUT DROP
 
 
 # Save iptables rules (temporarily, final save will be after confirmation)

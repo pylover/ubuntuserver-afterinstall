@@ -4,15 +4,31 @@
 set -e
 
 
+if [ -f vars.sh ]; then
+  source ./vars.sh
+fi
+
+
 ROLLBACK_TIMER=30
 SCREEN_NAME="iptables_restore"
-SSH_PORT=22
 SERVER_IP=$(hostname -I | awk '{print $1}')
+
+
+if [ -z "${SSH_PORT:-}" ]; then
+  echo "SSH port [Enter=1111]:"
+  read input_ssh_port
+  if [ -z "${input_ssh_port}" ]; then
+    SSH_PORT="1111"
+  else
+    SSH_PORT="${input_ssh_port}"
+  fi
+fi
 
 
 echo "Starting system preparation..."
 apt update
 apt -y upgrade
+apt -y purge ufw
 apt install -y \
   vim \
   screen
@@ -94,6 +110,19 @@ fi
 
 # Clean up if still needed (no harm if already cleaned)
 screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
+
+
+sed -i '/^#\?Port/d' /etc/ssh/sshd_config
+sed -i '/^#\?PermitRootLogin/d' /etc/ssh/sshd_config
+sed -i '/ubuntuserver-afterinstall/d' /etc/ssh/sshd_config
+echo "" >> /etc/ssh/sshd_config
+echo "# Added by ubuntuserver-afterinstall/do.sh" >> /etc/ssh/sshd_config
+echo "Port ${SSH_PORT}" >> /etc/ssh/sshd_config
+echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+
+
+echo "Restarting SSH service..."
+systemctl restart sshd
 
 
 echo "Server initialization completed successfully."

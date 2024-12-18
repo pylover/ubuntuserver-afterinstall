@@ -36,11 +36,11 @@ iptables-save > /etc/iptables/rules.v4.backup
 
 # Rollback script file
 ROLLBACK_FILE="/tmp/firewall_rollback.sh"
-cat <<EOT > "${ROLLBACK_FILE}"
-#!/usr/bin/env bash
+echo '#!/usr/bin/env bash
+
 echo "Applying firewall rollback..."
 iptables-restore < /etc/iptables/rules.v4.backup
-EOT
+' > ${ROLLBACK_FILE}
 chmod +x "${ROLLBACK_FILE}"
 
 
@@ -51,16 +51,15 @@ screen -dmS ${SCREEN_NAME} bash -c "sleep ${ROLLBACK_TIMER} && bash ${ROLLBACK_F
 
 # Apply new iptables rules
 echo "Applying new iptables firewall rules..."
-iptables -F
 iptables -X
 iptables -P INPUT ACCEPT
-iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -s 127.0.0.0/8 -j ACCEPT
 iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport ${SSH_PORT} -j ACCEPT  # SSH access
 iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport 80 -j ACCEPT           # HTTP
 iptables -A INPUT -d $SERVER_IP/32 -p tcp -m tcp --sport 1024:65535 --dport 443 -j ACCEPT          # HTTPS
+iptables -P FORWARD DROP
 
 
 # Save iptables rules (temporarily, final save will be after confirmation)

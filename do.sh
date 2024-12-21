@@ -25,6 +25,15 @@ if [ -z "${SSH_PORT:-}" ]; then
 fi
 
 
+if [ -z "${ADMIN_USERS:-}" ]; then
+  echo "Admin users (user:pass) [Enter=adminuser:adminpassword]:"
+  read input_admin_pair
+  if [ -n "${input_admin_pair}" ]; then
+    ADMIN_USERS="${input_admin_pair}"
+  fi
+fi
+
+
 echo "Starting system preparation..."
 apt update
 apt -y upgrade
@@ -42,6 +51,35 @@ fi
 if ! grep -q "set editing-mode vi" "${HOME}/.inputrc" 2>/dev/null; then
   echo "set editing-mode vi" >> "${HOME}/.inputrc"
 fi
+
+
+echo "Configuring admin users..."
+NOPASS_LIST="${NOPASS_ADMIN:-}"
+
+
+for entry in ${ADMIN_USERS}; do
+  user=$(echo "${entry}" | cut -d':' -f1)
+  user_password=$(echo "${entry}" | cut -d':' -f2)
+  if [ -z "${user_passord}" ]; then
+    user_password="${user}password"
+  fi
+
+  if ! id -u "${user}" >/dev/null 2>&1; then
+    echo "Adding administrator user: ${user}"
+    adduser --disabled-password --gecos "" "${user}"
+    adduser "${user}" sudo
+  fi
+
+  echo "${user}:${user_password}" >> /tmp/passwords.txt
+  
+  if echo " ${NOPASS_LIST} " | grep -q " ${user} "; then
+    SUDO_RULE="NOPASSWD:ALL"
+  else
+    SUDO_RULE="ALL"
+  fi
+  echo "${user} ALL=(ALL) ${SUDO_RULE}" > "/etc/sudoers.d/${user}"
+  chmod 0440 "/etc/sudoers.d/${user}"
+
 
 
 # Back up current iptables configuration

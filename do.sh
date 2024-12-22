@@ -26,7 +26,7 @@ fi
 
 
 if [ -z "${ADMIN_USERS:-}" ]; then
-  echo "Admin users (user:pass) [Enter=adminuser:adminpassword]:"
+  echo "Enter administrator(s) credentials: i.e: 'user:pass'":
   read input_admin_pair
   if [ -n "${input_admin_pair}" ]; then
     ADMIN_USERS="${input_admin_pair}"

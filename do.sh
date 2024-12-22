@@ -26,10 +26,10 @@ fi
 
 
 if [ -z "${ADMIN_USERS:-}" ]; then
-  echo "Enter administrator(s) credentials: i.e: 'user:pass'":
-  read input_admin_pair
-  if [ -n "${input_admin_pair}" ]; then
-    ADMIN_USERS="${input_admin_pair}"
+  echo "Enter administrator(s) credentials: i.e: 'user'":
+  read input_admin_user
+  if [ -n "${input_admin_user}" ]; then
+    ADMIN_USERS="${input_admin_user}"
   fi
 fi
 
@@ -57,12 +57,8 @@ echo "Configuring admin users..."
 NOPASS_LIST="${NOPASS_ADMIN:-}"
 
 
-for entry in ${ADMIN_USERS}; do
-  user=$(echo "${entry}" | cut -d':' -f1)
-  user_password=$(echo "${entry}" | cut -d':' -f2)
-  if [ -z "${user_passord}" ]; then
-    read -sp "Password for ${user}: " user_password
-  fi
+for user in ${ADMIN_USERS}; do
+  read -sp "Password for ${user}: " user_password
 
   if ! id -u "${user}" >/dev/null 2>&1; then
     echo "Adding administrator user: ${user}"
@@ -71,15 +67,20 @@ for entry in ${ADMIN_USERS}; do
   fi
 
   echo "${user}:${user_password}" >> /tmp/passwords.txt
-  
+
   if echo " ${NOPASS_LIST} " | grep -q " ${user} "; then
     SUDO_RULE="NOPASSWD:ALL"
   else
     SUDO_RULE="ALL"
   fi
+
   echo "${user} ALL=(ALL) ${SUDO_RULE}" > "/etc/sudoers.d/${user}"
   chmod 0440 "/etc/sudoers.d/${user}"
+done
 
+
+echo "Changing passwords..."
+chpasswd < /tmp/passwords.txt
 
 
 # Back up current iptables configuration

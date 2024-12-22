@@ -61,7 +61,7 @@ for entry in ${ADMIN_USERS}; do
   user=$(echo "${entry}" | cut -d':' -f1)
   user_password=$(echo "${entry}" | cut -d':' -f2)
   if [ -z "${user_passord}" ]; then
-    user_password="${user}password"
+    read -sp "Password for ${user}: " user_password
   fi
 
   if ! id -u "${user}" >/dev/null 2>&1; then

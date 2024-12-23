@@ -19,7 +19,7 @@
 
 ### Using Git
 ```bash
-git clone https://github.com/agrinco/ubuntuserver-afterinstall.git
+git clone https://github.com/pylover/ubuntuserver-afterinstall.git
 cd ubuntuserver-afterinstall/
 # Update vars.sh with your desired configurations
 sudo ./do.sh

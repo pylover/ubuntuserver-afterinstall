@@ -1,6 +1,6 @@
 PACKAGES_INSTALL=
 PACKAGES_PURGE=
 SSH_PORT=
+ADMINISTRATORS=
 # ########################################
-# ADMINISTRATORS=
 # SUPERUSERS="vahid"

@@ -13,6 +13,7 @@ now () {
   date +'%D %T'
 }
 
+
 inputrc_set_vimode () {
   local homedir
   local filename
@@ -140,36 +141,23 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
-echo "Under construction....."
+# create administrator users
+read -p "Do you want to create one or more sudoers? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  if [ -z "${ADMINISTRATORS}" ]; then
+    while :; do
+      read -p "Enter a sudoer username: " adminusers
+      [[ $adminusers =~ ^[a-z]{3,}$ ]] || { 
+        echo "Invalid username: $adminusers" >&2
+        continue
+      }
+      echo "Username: $adminusers"
+      break;
+    done
+  fi
+fi
 
 
-# sed -i '/ubuntuserver-afterinstall/d' /etc/ssh/sshd_config
-# echo "" >> /etc/ssh/sshd_config
-# echo "# Added by ubuntuserver-afterinstall/do.sh" >> /etc/ssh/sshd_config
-# echo "Port ${SSH_PORT}" >> /etc/ssh/sshd_config
-# 
-# 
-# echo "Restarting SSH service..."
-# systemctl restart sshd
-# if [ -z "${SSH_PORT}" ]; then
-#   echo "SSH port [Enter=1111]:"
-#   read input_ssh_port
-#   if [ -z "${input_ssh_port}" ]; then
-#     SSH_PORT="1111"
-#   else
-#     SSH_PORT="${input_ssh_port}"
-#   fi
-# fi
-
-
-################################################################
-# ROLLBACK_TIMER=30
-# SCREEN_NAME="iptables_restore"
-# SERVER_IP=$(hostname -I | awk '{print $1}')
-# 
-# 
-# 
-# 
 # if [ -z "${ADMINISTRATORS:-}" ]; then
 #   echo "Enter administrator(s) credentials: i.e: 'user'":
 #   read input_admin_user
@@ -207,6 +195,30 @@ echo "Under construction....."
 # 
 # echo "Changing passwords..."
 # chpasswd < /tmp/passwords.txt
+echo "Under construction....."
+
+
+# echo "Restarting SSH service..."
+# systemctl restart sshd
+# if [ -z "${SSH_PORT}" ]; then
+#   echo "SSH port [Enter=1111]:"
+#   read input_ssh_port
+#   if [ -z "${input_ssh_port}" ]; then
+#     SSH_PORT="1111"
+#   else
+#     SSH_PORT="${input_ssh_port}"
+#   fi
+# fi
+
+
+################################################################
+# ROLLBACK_TIMER=30
+# SCREEN_NAME="iptables_restore"
+# SERVER_IP=$(hostname -I | awk '{print $1}')
+# 
+# 
+# 
+# 
 # 
 # 
 # # Back up current iptables configuration

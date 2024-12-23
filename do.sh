@@ -2,7 +2,7 @@
 
 
 set -e
-PRJ=pylover/ubuntuserver-afterinstall
+PRJ=ubuntuserver-afterinstall
 
 err () {
   echo $@ >&2

@@ -9,7 +9,7 @@ err () {
 }
 
 
-inputrc-set-vimode () {
+inputrc_set_vimode () {
   local homedir
   local filename
 
@@ -89,7 +89,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   fi
 
   # shell vi input mode
-  inputrc-set-vimode /root
+  inputrc_set_vimode /root
 fi
 
 

@@ -1,4 +1,6 @@
-# Server Preparation Script
+# ubuntuserver-afterinstall
+
+Ubuntu server preparation script.
 
 
 ## Features
@@ -10,17 +12,20 @@
 
 ## Prerequisites
 - A `Debian` server.
-- `curl`
-- `git`
 - `bash`
 
 
 ## Usage
 
-### Using Git
+### Quick
 ```bash
-git clone https://github.com/pylover/ubuntuserver-afterinstall.git
-cd ubuntuserver-afterinstall/
-# Update vars.sh with your desired configurations
+curl "https://raw.githubusercontent.com/pylover/ubuntuserver-afterinstall/master/do.sh" | sudo sh
+```
+
+### Standard
+Clone and change to the working copy directory then create a `vars.sh` file 
+with your desired configurations(see `vars.sh.example`), then:
+
+```bash
 sudo ./do.sh
 ```

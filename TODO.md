@@ -1,0 +1,7 @@
+- install packages
+- set default editor
+- configure firewall
+- configure ssh:
+  - port
+  - root password
+- create and authorize admin users

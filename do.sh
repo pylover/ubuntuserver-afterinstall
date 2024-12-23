@@ -57,8 +57,8 @@ fi
 
 # install packages
 reqs="screen"
-if [ -n "${PACKAGES}" ]; then
-  reqs="${reqs} ${PACKAGES}"
+if [ -n "${PACKAGES_INSTALL}" ]; then
+  reqs="${reqs} ${PACKAGES_INSTALL}"
 fi
 read -p "Do you want to install ${reqs}? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -68,8 +68,8 @@ fi
 
 # remove packages
 purges="ufw"
-if [ -n "${GARBAGES}" ]; then
-  purges="${purges} ${GARBAGES}"
+if [ -n "${PACKAGES_PURGE}" ]; then
+  purges="${purges} ${PACKAGES_PURGE}"
 fi
 read -p "Do you want to purge ${purges}? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -93,13 +93,34 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
-################################################################
-# ROLLBACK_TIMER=30
-# SCREEN_NAME="iptables_restore"
-# SERVER_IP=$(hostname -I | awk '{print $1}')
-# 
-# 
-# if [ -z "${SSH_PORT:-}" ]; then
+# ssh port
+read -p "Do you want to change the SSH server's port? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  if [ -z "${SSH_PORT}" ]; then
+
+    while :; do
+      read -p "Enter a port number between 22 and 65535: " sshport
+      [[ $sshport =~ ^[0-9]+$ ]] || { 
+        echo "Invalid SSH port: $sshport" >&2
+        continue
+      }
+      if ! ((sshport >= 22 && sshport <= 65535)); then
+        echo "sshport out of range: $sshport, try again"
+      else
+        echo "valid sshport"
+        break
+      fi
+    done
+
+  fi
+
+  echo "SSH PORT: $sshport"
+fi
+
+echo "Under construction....."
+
+
+# if [ -z "${SSH_PORT}" ]; then
 #   echo "SSH port [Enter=1111]:"
 #   read input_ssh_port
 #   if [ -z "${input_ssh_port}" ]; then
@@ -108,6 +129,14 @@ fi
 #     SSH_PORT="${input_ssh_port}"
 #   fi
 # fi
+
+
+################################################################
+# ROLLBACK_TIMER=30
+# SCREEN_NAME="iptables_restore"
+# SERVER_IP=$(hostname -I | awk '{print $1}')
+# 
+# 
 # 
 # 
 # if [ -z "${ADMINISTRATORS:-}" ]; then

@@ -1,5 +1,6 @@
-PACKAGES=
-GARBAGES=
+PACKAGES_INSTALL=
+PACKAGES_PURGE=
+SSH_PORT=
+# ########################################
 # ADMINISTRATORS=
 # SUPERUSERS="vahid"
-# SSH_PORT=2222

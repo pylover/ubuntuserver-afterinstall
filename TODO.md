@@ -1,3 +1,7 @@
+usevim
+sshport
+sshrestart
+
 - configure ssh:
   - port
   - root password

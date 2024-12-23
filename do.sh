@@ -2,12 +2,16 @@
 
 
 set -e
-
+PRJ=pylover/ubuntuserver-afterinstall
 
 err () {
   echo $@ >&2
 }
 
+
+now () {
+  date +'%D %T'
+}
 
 inputrc_set_vimode () {
   local homedir
@@ -96,8 +100,9 @@ fi
 # ssh port
 read -p "Do you want to change the SSH server's port? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  if [ -z "${SSH_PORT}" ]; then
-
+  if [ -n "${SSH_PORT}" ]; then
+    sshport=${SSH_PORT}
+  else
     while :; do
       read -p "Enter a port number between 22 and 65535: " sshport
       [[ $sshport =~ ^[0-9]+$ ]] || { 
@@ -105,21 +110,47 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         continue
       }
       if ! ((sshport >= 22 && sshport <= 65535)); then
-        echo "sshport out of range: $sshport, try again"
+        echo "SSH port out of range: $sshport, try again"
       else
         echo "valid sshport"
         break
       fi
     done
-
   fi
 
   echo "SSH PORT: $sshport"
+  sshportmagic="# SSH port changed by $PRJ"
+  sed -i "/^${sshportmagic}/d" /etc/ssh/sshd_config
+  sed -i '/^Port/d' /etc/ssh/sshd_config
+  echo -e "${sshportmagic} at $(now)" >> /etc/ssh/sshd_config
+  echo "Port ${sshport}" >> /etc/ssh/sshd_config
+  sshrestart=yes
 fi
+
+
+# ssh root password login
+read -p "Do you want to disable the root SSH password login? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  sshrootpwdmagic="# SSH root login disabled by $PRJ"
+  sed -i "/^${sshrootpwdmagic}/d" /etc/ssh/sshd_config
+  sed -i '/^PermitRootLogin/d' /etc/ssh/sshd_config
+  echo -e "${sshrootpwdmagic} at $(now)" >> /etc/ssh/sshd_config
+  echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+  sshrestart=yes
+fi
+
 
 echo "Under construction....."
 
 
+# sed -i '/ubuntuserver-afterinstall/d' /etc/ssh/sshd_config
+# echo "" >> /etc/ssh/sshd_config
+# echo "# Added by ubuntuserver-afterinstall/do.sh" >> /etc/ssh/sshd_config
+# echo "Port ${SSH_PORT}" >> /etc/ssh/sshd_config
+# 
+# 
+# echo "Restarting SSH service..."
+# systemctl restart sshd
 # if [ -z "${SSH_PORT}" ]; then
 #   echo "SSH port [Enter=1111]:"
 #   read input_ssh_port
@@ -246,17 +277,6 @@ echo "Under construction....."
 # screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
 # 
 # 
-# sed -i '/^#\?Port/d' /etc/ssh/sshd_config
-# sed -i '/^#\?PermitRootLogin/d' /etc/ssh/sshd_config
-# sed -i '/ubuntuserver-afterinstall/d' /etc/ssh/sshd_config
-# echo "" >> /etc/ssh/sshd_config
-# echo "# Added by ubuntuserver-afterinstall/do.sh" >> /etc/ssh/sshd_config
-# echo "Port ${SSH_PORT}" >> /etc/ssh/sshd_config
-# echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
-# 
-# 
-# echo "Restarting SSH service..."
-# systemctl restart sshd
 # 
 # 
 # echo "Server initialization completed successfully."

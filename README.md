@@ -19,7 +19,7 @@ Ubuntu server preparation script.
 
 ### Quick
 ```bash
-curl "https://raw.githubusercontent.com/pylover/ubuntuserver-afterinstall/master/do.sh" | sudo bash
+curl "https://raw.githubusercontent.com/pylover/ubuntuserver-afterinstall/master/quick.sh" | sudo bash
 ```
 
 ### Standard

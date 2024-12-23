@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-cd $(mktemp -d)
-git clone https://github.com/pylover/ubuntuserver-afterinstall.git
-cd ubuntuserver-afterinstall
+tdir=$(mktemp -d)
+git clone https://github.com/pylover/ubuntuserver-afterinstall.git $tdir
+cd $tdir
 ./do.sh

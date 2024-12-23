@@ -9,10 +9,10 @@
 
 
 ## Prerequisites
-- A Debian or Ubuntu-based Linux server.
-- `curl` installed if you want to run the script directly from a URL.
-- `git` installed if you want to clone the repository.
-- `bin/bash` only works on `bash`
+- A `Debian` server.
+- `curl`
+- `git`
+- `bash`
 
 
 ## Usage
@@ -23,23 +23,4 @@ git clone https://github.com/pylover/ubuntuserver-afterinstall.git
 cd ubuntuserver-afterinstall/
 # Update vars.sh with your desired configurations
 sudo ./do.sh
-```
-
-## Example Configuration
-
-### vars.sh Example
-```bash
-#!/usr/bin/env bash
-
-
-# Override SSH port if desired:
-SSH_PORT=2222
-ADMIN_USERS="admin1 admin2"
-
-# If you do not set ADMIN_USERS, the script prompts and defaults to "adminuser:adminpassword".
-
-# Define which users should have NOPASSWD sudo access:
-# List the usernames that should have NOPASSWD separated by spaces.
-# If none are listed, no user gets NOPASSWD:
-NOPASS_ADMIN="admin1 admin2"
 ```

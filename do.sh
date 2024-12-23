@@ -36,11 +36,11 @@ if [ -z "${SSH_PORT:-}" ]; then
 fi
 
 
-if [ -z "${ADMIN_USERS:-}" ]; then
+if [ -z "${ADMINISTRATORS:-}" ]; then
   echo "Enter administrator(s) credentials: i.e: 'user'":
   read input_admin_user
   if [ -n "${input_admin_user}" ]; then
-    ADMIN_USERS="${input_admin_user}"
+    ADMINISTRATORS="${input_admin_user}"
   fi
 fi
 
@@ -65,10 +65,9 @@ fi
 
 
 echo "Configuring admin users..."
-NOPASS_LIST="${NOPASS_ADMIN:-}"
 
 
-for user in ${ADMIN_USERS}; do
+for user in ${ADMINISTRATORS}; do
   read -sp "Password for ${user}: " user_password
 
   if ! id -u "${user}" >/dev/null 2>&1; then
@@ -79,7 +78,7 @@ for user in ${ADMIN_USERS}; do
 
   echo "${user}:${user_password}" >> /tmp/passwords.txt
 
-  if echo " ${NOPASS_LIST} " | grep -q " ${user} "; then
+  if echo " ${SUPERUSERS} " | grep -q " ${user} "; then
     SUDO_RULE="NOPASSWD:ALL"
   else
     SUDO_RULE="ALL"

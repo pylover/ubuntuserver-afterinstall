@@ -50,7 +50,7 @@ fi
 
 echo "Installing and removing some packages..."
 read -p "Do you want to update the aptitude catalogues? [N/y] " 
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ $REPLY =~ '^[Yy]$' ]]; then
   apt-get update
 fi
 
@@ -61,7 +61,7 @@ if [ -n "${PACKAGES}" ]; then
   reqs="${reqs} ${PACKAGES}"
 fi
 read -p "Do you want to install ${reqs}? [N/y] " 
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ $REPLY =~ '^[Yy]$' ]]; then
   apt-get install -y ${reqs}
 fi
 

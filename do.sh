@@ -3,6 +3,17 @@
 
 set -e
 
+err () {
+  echo $@ >&2
+}
+
+
+# Check the shell
+if [ "${SHELL}" != "/bin/bash" ]; then
+  err "Please run this script with /bin/bash"
+  exit 1
+fi
+
 
 if [ -f vars.sh ]; then
   source ./vars.sh
@@ -139,10 +150,10 @@ if [[ "$user_response" == "y" ]]; then
   iptables-save > /etc/iptables/rules.v4
   echo "Iptables rules confirmed and saved permanently."
 else
-  echo "No confirmation received. Rolling back firewall changes..."
   bash "${ROLLBACK_FILE}"
   # Clean up rollback screen session if still running
   screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
+  err "No confirmation received. Rolling back firewall changes..."
   exit 1
 fi
 

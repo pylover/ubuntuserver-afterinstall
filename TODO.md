@@ -1,5 +1,3 @@
-- install packages
-- set default editor
 - configure firewall
 - configure ssh:
   - port

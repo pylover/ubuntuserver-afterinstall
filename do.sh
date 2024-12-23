@@ -9,7 +9,34 @@ err () {
 }
 
 
-# Check the shell
+inputrc-set-vimode () {
+  local homedir
+  local filename
+
+  homedir=$1
+  filename=$homedir/.inputrc
+
+  if [ -f "$filename" ]; then
+    sed -i.back '/editing-mode/d' $filename
+  fi
+  echo "set editing-mode vi" >> $filename
+}
+
+
+# check the platform
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  echo "Platform: $OSTYPE"
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+  echo "Platform: $OSTYPE"
+  err "I Love $OSTYPE but, $OSTYPE is not supported!"
+  exit 1
+else
+  err "$OSTYPE is not supported!"
+  exit 1
+fi
+
+
+# check the shell
 if [ "${SHELL}" != "/bin/bash" ]; then
   err "Please run this script with /bin/bash"
   exit 1
@@ -21,13 +48,49 @@ if [ -f vars.sh ]; then
 fi
 
 
-echo "Starting system preparation..."
-apt update
-apt -y upgrade
-apt -y purge ufw
-apt install -y \
-  vim \
-  screen
+echo "Installing and removing some packages..."
+read -p "Do you want to update the aptitude catalogues? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  apt-get update
+fi
+
+
+# install packages
+reqs="screen"
+if [ -n "${PACKAGES}" ]; then
+  reqs="${reqs} ${PACKAGES}"
+fi
+read -p "Do you want to install ${reqs}? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  apt-get install -y ${reqs}
+fi
+
+
+# remove packages
+purges="ufw"
+if [ -n "${GARBAGES}" ]; then
+  purges="${purges} ${GARBAGES}"
+fi
+read -p "Do you want to purge ${purges}? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  apt-get purge -y ${purges}
+fi
+
+
+# editor -- vim
+read -p "Do you want to install VIM and set it as the default editor? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  usevim=yes
+  apt-get install -y vim
+
+  # shell default editor
+  if ! grep -qr "^export EDITOR" /etc/profile.d 2>/dev/null; then
+    echo 'export EDITOR=/usr/bin/vim' >> /etc/profile.d/editor.sh
+  fi
+
+  # shell vi input mode
+  inputrc-set-vimode /root
+fi
 
 
 ################################################################
@@ -55,16 +118,6 @@ apt install -y \
 #   fi
 # fi
 # 
-# 
-# 
-# if ! grep -q "EDITOR=" /etc/profile.d/editor.sh 2>/dev/null; then
-#   echo 'export EDITOR=/usr/bin/vim' >> /etc/profile.d/editor.sh
-# fi
-# 
-# 
-# if ! grep -q "set editing-mode vi" "${HOME}/.inputrc" 2>/dev/null; then
-#   echo "set editing-mode vi" >> "${HOME}/.inputrc"
-# fi
 # 
 # 
 # echo "Configuring admin users..."

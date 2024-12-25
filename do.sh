@@ -212,20 +212,20 @@ if [ -d "${HERE}/sudoers" ]; then
 fi
 
 
-# # create another interactive administrator user
-# read -p "Do you want to create one or more sudoers? [N/y] " 
-# if [[ $REPLY =~ ^[Yy]$ ]]; then
-#   while :; do
-#     read -p "Enter a sudoer username: " adminuser
-#     [[ $adminuser =~ ^$userpat$ ]] || { 
-#       err "Invalid username: $adminuser"
-#       continue
-#     }
-# 
-#     sudoer_create $adminuser
-#     break;
-#   done
-# fi
+# create another interactive administrator user
+read -p "Do you want to create one or more sudoers? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  while :; do
+    read -p "Enter a sudoer username: " adminuser
+    [[ $adminuser =~ ^$userpat$ ]] || { 
+      err "Invalid username: $adminuser"
+      continue
+    }
+
+    sudoer_create $adminuser
+    break;
+  done
+fi
 
 ########################################################
 # if [ -z "${ADMINISTRATORS:-}" ]; then

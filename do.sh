@@ -27,11 +27,9 @@ now () {
 
 
 inputrc_set_vimode () {
-  local homedir
   local filename
 
-  homedir=$1
-  filename=$homedir/.inputrc
+  filename=$1/.inputrc
 
   if [ -f "$filename" ]; then
     sed -i.back '/editing-mode/d' $filename
@@ -73,7 +71,7 @@ sudoer_create () {
 
   read -p "Do you want to enable vi editing mode for ${username}? [N/y] " 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    inputrc_set_vimode ${username} 
+    inputrc_set_vimode /home/${username} 
   fi
 }
 

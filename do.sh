@@ -73,7 +73,7 @@ sudoerkeys_createall () {
   local username
 
   for keyfile in ${HERE}/sudoers/*.pub; do 
-    if [ ! -f keyfile ]; then
+    if [ ! -f $keyfile ]; then
       err "file does not exists: $keyfile"
       continue;
     fi

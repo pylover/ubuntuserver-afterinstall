@@ -73,6 +73,9 @@ sudoerkeys_createall () {
   local username
 
   for keyfile in ${HERE}/sudoers/*.pub; do 
+    if [ ! -f keyfile ]; then
+      continue;
+    fi
     filename=`basename $keyfile`
     [[ $filename =~ ^$pubfilepat$ ]] || {
       err "Invalid filename: $filename, ignoring."

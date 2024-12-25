@@ -74,6 +74,7 @@ sudoerkeys_createall () {
 
   for keyfile in ${HERE}/sudoers/*.pub; do 
     if [ ! -f keyfile ]; then
+      err "file does not exists: $keyfile"
       continue;
     fi
     filename=`basename $keyfile`

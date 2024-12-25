@@ -9,6 +9,7 @@ HERE=`dirname "$(readlink -f "$BASH_SOURCE")"`
 userpat="[a-z]{3,}"
 pubfilepat="($userpat)\.pub"
 
+
 err () {
   echo $@ >&2
 }
@@ -123,6 +124,11 @@ fi
 
 if [ -f vars.sh ]; then
   source ./vars.sh
+fi
+
+
+if [ -z "${SUPERUSER}" ]; then
+  SUPERUSER="vahid"
 fi
 
 

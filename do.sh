@@ -3,6 +3,9 @@
 
 set -e
 PRJ=ubuntuserver-afterinstall
+HERE=`dirname "$(readlink -f "$BASH_SOURCE")"`
+userpat="[a-z]{3,}"
+pubfilepat="($userpat)\.pub"
 
 err () {
   echo $@ >&2
@@ -25,6 +28,54 @@ inputrc_set_vimode () {
     sed -i.back '/editing-mode/d' $filename
   fi
   echo "set editing-mode vi" >> $filename
+}
+
+
+sudoer_create () {
+  local username
+  local keyfile
+  local sshdir
+
+  username=$1
+  keyfile=$2
+
+  echo "creating user: $username ..."
+  adduser $username && \
+  adduser $username sudo || {
+    return 1
+  }
+
+  if [ -n "${keyfile}" ]; then
+    sshdir=/home/$username/.ssh
+    if [ ! -d $sshdir ]; then
+      mkdir -p $sshdir
+      chown -R $username:$username $sshdir
+      chmod -R 700 $sshdir
+    fi
+    cat $keyfile >> $sshdir/authorized_keys
+    chown $username:$username $sshdir/authorized_keys
+    chmod 600 $sshdir/authorized_keys
+  fi
+}
+
+
+sudoerkeys_createall () {
+  local keyfile
+  local filename
+  local username
+
+  for keyfile in ${HERE}/sudoers/*.pub; do 
+    filename=`basename $keyfile`
+    [[ $filename =~ ^$pubfilepat$ ]] || {
+      err "Invalid filename: $filename, ignoring."
+      continue;
+    }
+    username="${BASH_REMATCH[1]}"
+    read -p "Do you want to create the $username user? [N/y] " 
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      sudoer_create $username $keyfile
+    fi
+  done
 }
 
 
@@ -107,13 +158,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     while :; do
       read -p "Enter a port number between 22 and 65535: " sshport
       [[ $sshport =~ ^[0-9]+$ ]] || { 
-        echo "Invalid SSH port: $sshport" >&2
+        err "Invalid SSH port: $sshport"
         continue
       }
       if ! ((sshport >= 22 && sshport <= 65535)); then
-        echo "SSH port out of range: $sshport, try again"
+        err "SSH port out of range: $sshport, try again"
       else
-        echo "valid sshport"
         break
       fi
     done
@@ -141,23 +191,31 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
-# create administrator users
-read -p "Do you want to create one or more sudoers? [N/y] " 
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  if [ -z "${ADMINISTRATORS}" ]; then
-    while :; do
-      read -p "Enter a sudoer username: " adminusers
-      [[ $adminusers =~ ^[a-z]{3,}$ ]] || { 
-        echo "Invalid username: $adminusers" >&2
-        continue
-      }
-      echo "Username: $adminusers"
-      break;
-    done
+# create administrator users based on public keys
+if [ -d "${HERE}/sudoers" ]; then
+  read -p "Do you want to create sudoers/*.pub users? [N/y] " 
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    sudoerkeys_createall
   fi
 fi
 
 
+# # create another interactive administrator user
+# read -p "Do you want to create one or more sudoers? [N/y] " 
+# if [[ $REPLY =~ ^[Yy]$ ]]; then
+#   while :; do
+#     read -p "Enter a sudoer username: " adminuser
+#     [[ $adminuser =~ ^$userpat$ ]] || { 
+#       err "Invalid username: $adminuser"
+#       continue
+#     }
+# 
+#     sudoer_create $adminuser
+#     break;
+#   done
+# fi
+
+########################################################
 # if [ -z "${ADMINISTRATORS:-}" ]; then
 #   echo "Enter administrator(s) credentials: i.e: 'user'":
 #   read input_admin_user

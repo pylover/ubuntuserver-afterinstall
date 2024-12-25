@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 
-set -e
-
-
 PRJ=ubuntuserver-afterinstall
 HERE=`dirname "$(readlink -f "$BASH_SOURCE")"`
 userpat="[a-z]{3,}"

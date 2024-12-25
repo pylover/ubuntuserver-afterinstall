@@ -1,5 +1,4 @@
-PACKAGES_INSTALL=
-PACKAGES_PURGE=
+PACKAGES_INSTALL=sl
+PACKAGES_PURGE=snap
 SSH_PORT=
-# ########################################
-# SUPERUSERS="vahid"
+SUPERUSER="vahid"

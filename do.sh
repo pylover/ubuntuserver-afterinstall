@@ -47,22 +47,27 @@ sudoer_create () {
   username=$1
   keyfile=$2
 
-  echo "creating user: $username ..."
-  adduser $username && \
-  adduser $username sudo || {
+  echo "creating user: ${username} ..."
+  adduser ${username} && \
+  adduser ${username} sudo || {
     return 1
   }
 
   if [ -n "${keyfile}" ]; then
-    sshdir=/home/$username/.ssh
+    sshdir=/home/${username}/.ssh
     if [ ! -d $sshdir ]; then
       mkdir -p $sshdir
-      chown -R $username:$username $sshdir
+      chown -R ${username}:${username} $sshdir
       chmod -R 700 $sshdir
     fi
     cat $keyfile >> $sshdir/authorized_keys
-    chown $username:$username $sshdir/authorized_keys
+    chown ${username}:${username} $sshdir/authorized_keys
     chmod 600 $sshdir/authorized_keys
+  fi
+
+  if [[ "${username}" =~ "${SUPERUSER}" ]]; then
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${username}"
+    chmod 0440 "/etc/sudoers.d/${username}"
   fi
 }
 
@@ -83,9 +88,9 @@ sudoerkeys_createall () {
       continue;
     }
     username="${BASH_REMATCH[1]}"
-    read -p "Do you want to create the $username user? [N/y] " 
+    read -p "Do you want to create the ${username} user? [N/y] " 
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-      sudoer_create $username $keyfile
+      sudoer_create ${username} $keyfile
     fi
   done
 }
@@ -213,7 +218,7 @@ fi
 
 
 # create another interactive administrator user
-read -p "Do you want to create one or more sudoers? [N/y] " 
+read -p "Do you want to create another sudoer? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   while :; do
     read -p "Enter a sudoer username: " adminuser
@@ -227,44 +232,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   done
 fi
 
+
 ########################################################
-# if [ -z "${ADMINISTRATORS:-}" ]; then
-#   echo "Enter administrator(s) credentials: i.e: 'user'":
-#   read input_admin_user
-#   if [ -n "${input_admin_user}" ]; then
-#     ADMINISTRATORS="${input_admin_user}"
-#   fi
-# fi
-# 
-# 
-# 
-# echo "Configuring admin users..."
-# 
-# 
-# for user in ${ADMINISTRATORS}; do
-#   read -sp "Password for ${user}: " user_password
-# 
-#   if ! id -u "${user}" >/dev/null 2>&1; then
-#     echo "Adding administrator user: ${user}"
-#     adduser --disabled-password --gecos "" "${user}"
-#     adduser "${user}" sudo
-#   fi
-# 
-#   echo "${user}:${user_password}" >> /tmp/passwords.txt
-# 
-#   if echo " ${SUPERUSERS} " | grep -q " ${user} "; then
-#     SUDO_RULE="NOPASSWD:ALL"
-#   else
-#     SUDO_RULE="ALL"
-#   fi
-# 
-#   echo "${user} ALL=(ALL) ${SUDO_RULE}" > "/etc/sudoers.d/${user}"
-#   chmod 0440 "/etc/sudoers.d/${user}"
-# done
-# 
-# 
-# echo "Changing passwords..."
-# chpasswd < /tmp/passwords.txt
 echo "Under construction....."
 
 
@@ -285,10 +254,6 @@ echo "Under construction....."
 # ROLLBACK_TIMER=30
 # SCREEN_NAME="iptables_restore"
 # SERVER_IP=$(hostname -I | awk '{print $1}')
-# 
-# 
-# 
-# 
 # 
 # 
 # # Back up current iptables configuration

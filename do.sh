@@ -2,6 +2,8 @@
 
 
 set -e
+
+
 PRJ=ubuntuserver-afterinstall
 HERE=`dirname "$(readlink -f "$BASH_SOURCE")"`
 userpat="[a-z]{3,}"
@@ -10,6 +12,12 @@ pubfilepat="($userpat)\.pub"
 err () {
   echo $@ >&2
 }
+
+
+if [ "${USER}" != "root" ]; then
+  err "Please run with sudo!"
+  exit 1
+fi
 
 
 now () {

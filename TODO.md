@@ -1,2 +1,0 @@
-- sshport
-- configure firewall

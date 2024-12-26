@@ -290,10 +290,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   ipt_accept_input_tcp --dport ${sshport}
   
   # start background rollback timer task
-  bgrollbacktask_start
+  bgrollbacktask_star ${rollbacktout}t
 
   # change the input chain's policy
-  iptables -PINPUT DROP
+  # iptables -PINPUT DROP
 
   # ask user for confirmation with timeout
   echo -ne "Do you have access to the server now "

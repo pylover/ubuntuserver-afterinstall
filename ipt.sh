@@ -2,6 +2,7 @@ iptbackupfile=/etc/iptables/rules.v4.back
 
 
 ipt () {
+  echo "--> iptables $@"
   iptables $@ 
   return $?
 }
@@ -30,8 +31,9 @@ bgrollbacktask_start () {
   local cmd
 
   screenid=iptrollback
-  cmd="sleep ${rollbacktout}"
-  cmd="${cmd} && iptables-restore < ${iptbackupfile}"
+  cmd="sleep $1"
+  cmd="${cmd} && iptables -P INPUT ACCEPT"
+  # cmd="${cmd} && iptables-restore < ${iptbackupfile}"
   cmd="${cmd} && echo 'Firewall rules has been rollbacked due the timeout.'"
 
   # start a screen session to ensure rollback can be applied if disconnected.

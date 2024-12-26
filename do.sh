@@ -27,11 +27,13 @@ inputrc_set_vimode () {
   local filename
 
   filename=$1/.inputrc
+  usernmae=`basename $1`
 
   if [ -f "$filename" ]; then
     sed -i.back '/editing-mode/d' $filename
   fi
-  echo "set editing-mode vi" >> $filename
+  echo "set editing-mode vi" >> ${filename}
+  chown ${username}:${username} ${filenmae}
 }
 
 

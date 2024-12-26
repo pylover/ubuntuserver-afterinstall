@@ -278,13 +278,15 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   # installing required packages
   apt-get install -y iptables-persistent
 
+  # relax before adding rules
+  ipt -P INPUT ACCEPT
+
   # Back up current iptables configuration
   echo "Backing up current iptables rules..."
   mkdir -p /etc/iptables/
   iptables-save > ${iptbackupfile}
 
   echo "Applying new iptables firewall rules..."
-  ipt -P INPUT ACCEPT
   ipt_accept_input -m state --state RELATED,ESTABLISHED 
   ipt_accept_input -ilo -s 127.0.0.0/8 
   ipt_accept_input_tcp --dport ${sshport}

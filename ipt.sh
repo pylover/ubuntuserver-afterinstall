@@ -32,10 +32,11 @@ bgrollbacktask_start () {
 
   screenid=iptrollback
   cmd="sleep $1"
-  cmd="${cmd} && iptables -P INPUT ACCEPT"
-  # cmd="${cmd} && iptables-restore < ${iptbackupfile}"
+  cmd="${cmd} && iptables-restore < ${iptbackupfile}"
   cmd="${cmd} && echo 'Firewall rules has been rollbacked due the timeout.'"
 
+  # cmd="${cmd} && iptables -P INPUT ACCEPT"
+  
   # start a screen session to ensure rollback can be applied if disconnected.
   # if no confirmation is provided by the user (or user disconnects), 
   # after a few seconds rollback is triggered.

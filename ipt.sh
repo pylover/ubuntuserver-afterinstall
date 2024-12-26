@@ -9,7 +9,7 @@ ipt () {
 
 
 ipt_accept () {
-  ipt -C $@ -jACCEPT && ipt -A $@ -jACCEPT 
+  ipt -C $@ -jACCEPT 2>/dev/null || ipt -A $@ -jACCEPT 
   return $?
 }
 

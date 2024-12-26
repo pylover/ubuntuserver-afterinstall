@@ -2,22 +2,22 @@ iptbackupfile=/etc/iptables/rules.v4.back
 
 
 ipt () {
-  iptables $@ 
+  return iptables $@ 
 }
 
 
 ipt_accept () {
-  ipt $@ -jACCEPT 
+  return ipt -C $@ -jACCEPT && ipt -A $@ -jACCEPT 
 }
 
 
 ipt_accept_input () {
-  ipt_accept -AINPUT $@
+  return ipt_accept INPUT $@
 }
 
 
 ipt_accept_input_tcp () {
-  ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
+  return ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
 }
 
 
@@ -43,7 +43,7 @@ bgrollbacktask_start () {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       echo "Killing rollback timer..............."
     fi
-    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
+    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
     rollbacktout=$((rollbacktout-1))
   done
 

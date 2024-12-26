@@ -301,7 +301,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   echo -ne "Press ENTER to ensure you have access to the server now "
   while [[ "${rollbacktout}" -gt 0 ]]; do
     echo -ne "$(printf "(%02ds)" ${rollbacktout})"
-    if ! read -t1; then
+    if read -t1; then
       bgrollbacktask_kill
       iptables-save > /etc/iptables/rules.v4
       break

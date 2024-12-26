@@ -290,7 +290,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   ipt_accept_input_tcp --dport ${sshport}
   
   # start background rollback timer task
-  bgrollbacktask_star ${rollbacktout}t
+  bgrollbacktask_start ${rollbacktout}t
 
   # change the input chain's policy
   # iptables -PINPUT DROP

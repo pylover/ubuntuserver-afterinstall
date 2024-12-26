@@ -203,11 +203,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 
   # update systemd ssh socket activation
   if [[ $(lsb_release -rs) == "24.04" ]]; then
-    mkdir -p /etc/systemd/system/ssh.socket.d
-    echo -e "[Socket]\nListenStream=$sshport" > \
-      /etc/systemd/system/ssh.socket.d/listen.conf
-
-    systemctl daemon-reload
+    sshsocketrestart=yes
   fi
   
   sshrestart=yes
@@ -254,7 +250,10 @@ fi
 if [[ "${sshrestart}" == "yes" ]]; then
   read -p "Do you want to restart the SSH server? [N/y] " 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    systemctl restart ssh.socket
+    if [[ "${sshsocketrestart}" == "yes" ]]; then
+      systemctl daemon-reload
+      systemctl restart ssh.socket
+    fi
     systemctl restart ssh
   fi
 fi

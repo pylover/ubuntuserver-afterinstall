@@ -43,7 +43,7 @@ bgrollbacktask_start () {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       echo "Killing rollback timer..............."
     fi
-    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
+    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
     rollbacktout=$((rollbacktout-1))
   done
 

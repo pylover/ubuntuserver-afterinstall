@@ -6,7 +6,7 @@ here=`dirname "$(readlink -f "$BASH_SOURCE")"`
 publicip=$(hostname -I | awk '{print $1}')
 userpat="[a-z]{3,}"
 pubfilepat="($userpat)\.pub"
-rollbacktout=5
+rollbacktout=50
 
 
 err () {

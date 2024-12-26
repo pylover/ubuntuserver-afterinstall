@@ -7,7 +7,6 @@ publicip=$(hostname -I | awk '{print $1}')
 userpat="[a-z]{3,}"
 pubfilepat="($userpat)\.pub"
 rollbacktout=5
-iptbackupfile=/etc/iptables/rules.v4.back
 
 
 err () {
@@ -103,21 +102,6 @@ sudoerkeys_createall () {
       sudoer_create ${username} ${keyfile}
     fi
   done
-}
-
-
-ipt_accept () {
-  iptables $@ -jACCEPT 
-}
-
-
-ipt_accept_input () {
-  ipt_accept -AINPUT $@
-}
-
-
-ipt_accept_input_tcp () {
-  ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
 }
 
 
@@ -231,6 +215,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   fi
   
   sshrestart=yes
+else
+  sshport=$([[ $(sudo ss -lnpt | grep ssh) =~ :([0-9]{2,5}) ]] && \
+    echo ${BASH_REMATCH[1]})
 fi
 
 
@@ -283,40 +270,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
-bgrollbacktask_start () {
-  local screenid
-  local cmd
-
-  screenid=iptrollback
-  cmd="sleep ${rollbacktout}"
-  cmd="${cmd} && iptables-restore < ${iptbackupfile}"
-  cmd="${cmd} && echo 'Firewall rules has been rollbacked due the timeout.'"
-
-  # start a screen session to ensure rollback can be applied if disconnected.
-  # if no confirmation is provided by the user (or user disconnects), 
-  # after a few seconds rollback is triggered.
-  screen -dmS ${screenid} bash -c "${cmd}"
-
-  # ask user for confirmation with timeout
-  echo -ne "Do you have access to the server now "
-  while [[ "${rollbacktout}" -gt 0 ]]; do
-    echo -ne "$(printf "(%02ds)" ${rollbacktout})? [N/y] "
-    read -t1
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      echo "Killing rollback timer..............."
-    fi
-    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
-    rollbacktout=$((rollbacktout-1))
-  done
-
-}
-
-
 # firewall configration0
 read -p "Do you want to configure iptables? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+  source ${here}/ipt.sh
+  
   # installing required packages
-  apt-get installi -y iptables-persistent
+  apt-get install -y iptables-persistent
 
   # Back up current iptables configuration
   echo "Backing up current iptables rules..."
@@ -324,7 +284,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   iptables-save > ${iptbackupfile}
 
   echo "Applying new iptables firewall rules..."
-  ipt_accept -P ACCEPT
+  ipt -P INPUT ACCEPT
   ipt_accept_input -m state --state RELATED,ESTABLISHED 
   ipt_accept_input -ilo -s 127.0.0.0/8 
   ipt_accept_input_tcp --dport ${sshport}

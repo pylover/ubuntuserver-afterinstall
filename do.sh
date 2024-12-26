@@ -294,18 +294,20 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   # start background rollback timer task
   bgrollbacktask_start ${rollbacktout}
 
-  # change the input chain's policy
-  # iptables -PINPUT DROP
+  # change the input chain's policy to prevent any other packet(s).
+  iptables -PINPUT DROP
 
   # ask user for confirmation with timeout
-  echo -ne "Do you have access to the server now "
+  local repl
+  repl=empty 
+  echo -ne "Press ENTER to ensure you have access to the server now "
   while [[ "${rollbacktout}" -gt 0 ]]; do
-    echo -ne "$(printf "(%02ds)" ${rollbacktout})? [N/y] "
-    read -t1
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo -ne "$(printf "(%02ds)" ${rollbacktout})"
+    read -t1 repl
+    if [[ $repl != "empty" ]]; then
       echo "Killing rollback timer..............."
     fi
-    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
+    echo -ne "\b\b\b\b\b"
     rollbacktout=$((rollbacktout-1))
   done
 

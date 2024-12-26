@@ -10,10 +10,13 @@
 #   echo "User confirmed access. Canceling rollback..."
 #   # Stop the rollback screen session
 #   screen -S ${SCREEN_NAME} -X quit &>/dev/null || true
+
 #   # Remove rollback file
 #   rm -f "${ROLLBACK_FILE}"
+
 #   # Persist new rules
 #   iptables-save > /etc/iptables/rules.v4
+
 #   echo "Iptables rules confirmed and saved permanently."
 # else
 #   bash "${ROLLBACK_FILE}"

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 
-PRJ=ubuntuserver-afterinstall
-HERE=`dirname "$(readlink -f "$BASH_SOURCE")"`
+prj=ubuntuserver-afterinstall
+here=`dirname "$(readlink -f "$BASH_SOURCE")"`
+publicip=$(hostname -I | awk '{print $1}')
 userpat="[a-z]{3,}"
 pubfilepat="($userpat)\.pub"
+rollbacktout=5
+iptbackupfile=/etc/iptables/rules.v4.back
 
 
 err () {
@@ -84,7 +87,7 @@ sudoerkeys_createall () {
   local filename
   local username
 
-  for keyfile in ${HERE}/sudoers/*.pub; do 
+  for keyfile in ${here}/sudoers/*.pub; do 
     if [ ! -f $keyfile ]; then
       err "file does not exists: $keyfile"
       continue;
@@ -100,6 +103,21 @@ sudoerkeys_createall () {
       sudoer_create ${username} ${keyfile}
     fi
   done
+}
+
+
+ipt_accept () {
+  iptables $@ -jACCEPT 
+}
+
+
+ipt_accept_input () {
+  ipt_accept -AINPUT $@
+}
+
+
+ipt_accept_input_tcp () {
+  ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
 }
 
 
@@ -201,7 +219,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   fi
 
   echo "SSH PORT: $sshport"
-  sshportmagic="# SSH port changed by $PRJ"
+  sshportmagic="# SSH port changed by $prj"
   sed -i "/^${sshportmagic}/d" /etc/ssh/sshd_config
   sed -i '/^Port/d' /etc/ssh/sshd_config
   echo -e "${sshportmagic} at $(now)" >> /etc/ssh/sshd_config
@@ -219,7 +237,7 @@ fi
 # ssh root password login
 read -p "Do you want to disable the root SSH password login? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sshrootpwdmagic="# SSH root login disabled by $PRJ"
+  sshrootpwdmagic="# SSH root login disabled by $prj"
   sed -i "/^${sshrootpwdmagic}/d" /etc/ssh/sshd_config
   sed -i '/^PermitRootLogin/d' /etc/ssh/sshd_config
   echo -e "${sshrootpwdmagic} at $(now)" >> /etc/ssh/sshd_config
@@ -228,8 +246,20 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
+if [[ "${sshrestart}" == "yes" ]]; then
+  read -p "Do you want to restart the SSH server? [N/y] " 
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ "${sshsocketrestart}" == "yes" ]]; then
+      systemctl daemon-reload
+      systemctl restart ssh.socket
+    fi
+    systemctl restart ssh
+  fi
+fi
+
+
 # create administrator users based on public keys
-if [ -d "${HERE}/sudoers" ]; then
+if [ -d "${here}/sudoers" ]; then
   read -p "Do you want to create sudoers/*.pub users? [N/y] " 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudoerkeys_createall
@@ -253,15 +283,57 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
-if [[ "${sshrestart}" == "yes" ]]; then
-  read -p "Do you want to restart the SSH server? [N/y] " 
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if [[ "${sshsocketrestart}" == "yes" ]]; then
-      systemctl daemon-reload
-      systemctl restart ssh.socket
+bgrollbacktask_start () {
+  local screenid
+  local cmd
+
+  screenid=iptrollback
+  cmd="sleep ${rollbacktout}"
+  cmd="${cmd} && iptables-restore < ${iptbackupfile}"
+  cmd="${cmd} && echo 'Firewall rules has been rollbacked due the timeout.'"
+
+  # start a screen session to ensure rollback can be applied if disconnected.
+  # if no confirmation is provided by the user (or user disconnects), 
+  # after a few seconds rollback is triggered.
+  screen -dmS ${screenid} bash -c "${cmd}"
+
+  # ask user for confirmation with timeout
+  echo -ne "Do you have access to the server now "
+  while [[ "${rollbacktout}" -gt 0 ]]; do
+    echo -ne "$(printf "(%02ds)" ${rollbacktout})? [N/y] "
+    read -t1
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo "Killing rollback timer..............."
     fi
-    systemctl restart ssh
-  fi
+    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
+    rollbacktout=$((rollbacktout-1))
+  done
+
+}
+
+
+# firewall configration0
+read -p "Do you want to configure iptables? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  # installing required packages
+  apt-get installi -y iptables-persistent
+
+  # Back up current iptables configuration
+  echo "Backing up current iptables rules..."
+  mkdir -p /etc/iptables/
+  iptables-save > ${iptbackupfile}
+
+  echo "Applying new iptables firewall rules..."
+  ipt_accept -P ACCEPT
+  ipt_accept_input -m state --state RELATED,ESTABLISHED 
+  ipt_accept_input -ilo -s 127.0.0.0/8 
+  ipt_accept_input_tcp --dport ${sshport}
+  
+  # start background rollback timer task
+  bgrollbacktask_start
+
+  # change the input chain's policy
+  iptables -PINPUT DROP
 fi
 
 

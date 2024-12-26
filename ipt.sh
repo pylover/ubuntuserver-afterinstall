@@ -1,4 +1,5 @@
 iptbackupfile=/etc/iptables/rules.v4.back
+screenid=iptrollback
 
 
 ipt () {
@@ -27,10 +28,8 @@ ipt_accept_input_tcp () {
 
 
 bgrollbacktask_start () {
-  local screenid
   local cmd
 
-  screenid=iptrollback
   cmd="sleep $1"
   cmd="${cmd} && iptables-restore < ${iptbackupfile}"
   cmd="${cmd} && iptables -P INPUT ACCEPT"
@@ -41,4 +40,11 @@ bgrollbacktask_start () {
   # after a few seconds rollback is triggered.
   echo -- screen -dmS ${screenid} bash -c "${cmd}"
   screen -dmS ${screenid} bash -c "${cmd}"
+}
+
+
+bgrollbacktask_kill () {
+  # Stop the rollback screen session
+  screen -S ${screenid} -X quit
+  # screen -S ${screenid} -X quit &>/dev/null || true
 }

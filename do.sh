@@ -298,19 +298,17 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   iptables -PINPUT DROP
 
   # ask user for confirmation with timeout
-  local repl
-  repl=empty 
   echo -ne "Press ENTER to ensure you have access to the server now "
   while [[ "${rollbacktout}" -gt 0 ]]; do
     echo -ne "$(printf "(%02ds)" ${rollbacktout})"
-    read -t1 repl
-    if [[ $repl != "empty" ]]; then
-      echo "Killing rollback timer..............."
+    if ! read -t1; then
+      bgrollbacktask_kill
+      iptables-save > /etc/iptables/rules.v4
+      break
     fi
     echo -ne "\b\b\b\b\b"
     rollbacktout=$((rollbacktout-1))
   done
-
 fi
 
 

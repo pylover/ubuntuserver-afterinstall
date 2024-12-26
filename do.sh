@@ -200,6 +200,16 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   sed -i '/^Port/d' /etc/ssh/sshd_config
   echo -e "${sshportmagic} at $(now)" >> /etc/ssh/sshd_config
   echo "Port ${sshport}" >> /etc/ssh/sshd_config
+
+  # update systemd ssh socket activation
+  if [[ $(lsb_release -rs) == "24.04" ]]; then
+    mkdir -p /etc/systemd/system/ssh.socket.d
+    echo -e "[Socket]\nListenStream=$sshport" > \
+      /etc/systemd/system/ssh.socket.d/listen.conf
+
+    systemctl daemon-reload
+  fi
+  
   sshrestart=yes
 fi
 
@@ -244,6 +254,7 @@ fi
 if [[ "${sshrestart}" == "yes" ]]; then
   read -p "Do you want to restart the SSH server? [N/y] " 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
+    systemctl restart ssh.socket
     systemctl restart ssh
   fi
 fi

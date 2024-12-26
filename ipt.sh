@@ -2,22 +2,26 @@ iptbackupfile=/etc/iptables/rules.v4.back
 
 
 ipt () {
-  return iptables $@ 
+  iptables $@ 
+  return $?
 }
 
 
 ipt_accept () {
-  return ipt -C $@ -jACCEPT && ipt -A $@ -jACCEPT 
+  ipt -C $@ -jACCEPT && ipt -A $@ -jACCEPT 
+  return $?
 }
 
 
 ipt_accept_input () {
-  return ipt_accept INPUT $@
+  ipt_accept INPUT $@
+  return $?
 }
 
 
 ipt_accept_input_tcp () {
-  return ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
+  ipt_accept_input -d${publicip}/32 -ptcp -mtcp --sport 1024:65535 $@
+  return $?
 }
 
 
@@ -34,17 +38,4 @@ bgrollbacktask_start () {
   # if no confirmation is provided by the user (or user disconnects), 
   # after a few seconds rollback is triggered.
   screen -dmS ${screenid} bash -c "${cmd}"
-
-  # ask user for confirmation with timeout
-  echo -ne "Do you have access to the server now "
-  while [[ "${rollbacktout}" -gt 0 ]]; do
-    echo -ne "$(printf "(%02ds)" ${rollbacktout})? [N/y] "
-    read -t1
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      echo "Killing rollback timer..............."
-    fi
-    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
-    rollbacktout=$((rollbacktout-1))
-  done
-
 }

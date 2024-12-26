@@ -6,7 +6,7 @@ here=`dirname "$(readlink -f "$BASH_SOURCE")"`
 publicip=$(hostname -I | awk '{print $1}')
 userpat="[a-z]{3,}"
 pubfilepat="($userpat)\.pub"
-rollbacktout=50
+rollbacktout=30
 
 
 err () {
@@ -294,6 +294,19 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 
   # change the input chain's policy
   iptables -PINPUT DROP
+
+  # ask user for confirmation with timeout
+  echo -ne "Do you have access to the server now "
+  while [[ "${rollbacktout}" -gt 0 ]]; do
+    echo -ne "$(printf "(%02ds)" ${rollbacktout})? [N/y] "
+    read -t1
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo "Killing rollback timer..............."
+    fi
+    echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b"
+    rollbacktout=$((rollbacktout-1))
+  done
+
 fi
 
 

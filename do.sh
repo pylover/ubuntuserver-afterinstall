@@ -34,6 +34,10 @@ inputrc_set_vimode () {
   fi
   echo "set editing-mode vi" >> ${filename}
   chown ${username}:${username} ${filename}
+  
+  if [ -f "$filename.back" ]; then
+    chown ${username}:${username} "${filename}.back"
+  fi
 }
 
 

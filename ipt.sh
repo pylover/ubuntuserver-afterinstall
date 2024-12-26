@@ -39,5 +39,6 @@ bgrollbacktask_start () {
   # start a screen session to ensure rollback can be applied if disconnected.
   # if no confirmation is provided by the user (or user disconnects), 
   # after a few seconds rollback is triggered.
+  echo -- screen -dmS ${screenid} bash -c "${cmd}"
   screen -dmS ${screenid} bash -c "${cmd}"
 }

@@ -211,6 +211,23 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 
+# hostname
+read -p "Do you want to change the hostname? [N/y] " 
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+
+  while :; do
+    read -p "Enter a hostname: " nhname
+    [[ $nhname =~ ^[a-z][a-z0-9-_]+$ ]] && { 
+      hostnamectl hostname ${nhname}
+      break
+    }
+  
+    err "Invalid hostname: $nhname"
+    continue
+  done
+fi
+
+
 # editor -- vim
 read -p "Do you want to install VIM and set it as the default editor? [N/y] " 
 if [[ $REPLY =~ ^[Yy]$ ]]; then

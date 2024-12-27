@@ -108,7 +108,7 @@ sudoerkeys_createall () {
 
 
 ipt () {
-  echo "--> iptables $@"
+  echo "iptables $@"
   iptables $@ 
   return $?
 }
@@ -143,7 +143,7 @@ bgrollbacktask_start () {
   # start a screen session to ensure rollback can be applied if disconnected.
   # if no confirmation is provided by the user (or user disconnects), 
   # after a few seconds rollback is triggered.
-  echo -- screen -dmS ${screenid} bash -c "${cmd}"
+  # echo -- screen -dmS ${screenid} bash -c "${cmd}"
   screen -dmS ${screenid} bash -c "${cmd}"
 }
 
@@ -362,13 +362,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   # ask user for confirmation with timeout
   echo -ne "Press ENTER to ensure you have access to the server now "
   while [[ "${rollbacktout}" -gt 0 ]]; do
-    echo -ne "$(printf "(%02ds)" ${rollbacktout})"
+    printf "(%02ds)" ${rollbacktout}
     if read -t1; then
       bgrollbacktask_kill
       iptables-save > /etc/iptables/rules.v4
       break
     fi
-    echo -ne "\b\b\b\b\b"
+    printf "\b\b\b\b\b"
     rollbacktout=$((rollbacktout-1))
   done
 fi

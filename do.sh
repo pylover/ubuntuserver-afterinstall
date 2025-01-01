@@ -223,7 +223,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     }
   
     err "Invalid hostname: $nhname"
-    continue
   done
 fi
 

@@ -217,7 +217,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 
   while :; do
     read -p "Enter a hostname: " nhname
-    [[ $nhname =~ ^[a-z][a-z0-9-_]+$ ]] && { 
+    [[ $nhname =~ ^[a-z][a-z0-9_-]+$ ]] && { 
       hostnamectl hostname ${nhname}
       break
     }
